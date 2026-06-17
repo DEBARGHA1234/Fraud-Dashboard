@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: transactions
+    description: Fraud transaction operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,118 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: List fraud transactions
+      description: Returns paginated list of analyzed transactions with optional filters
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: minScore
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: maxScore
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionListResponse"
+    post:
+      operationId: createTransaction
+      tags: [transactions]
+      summary: Save an analyzed transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionInput"
+      responses:
+        "201":
+          description: Transaction saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FraudTransaction"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /transactions/{id}:
+    delete:
+      operationId: deleteTransaction
+      tags: [transactions]
+      summary: Delete a transaction record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /transactions/stats:
+    get:
+      operationId: getTransactionStats
+      tags: [transactions]
+      summary: Get aggregate stats for the analytics dashboard
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +148,207 @@ components:
       required:
         - status
 
+    FraudTransaction:
+      type: object
+      required:
+        - id
+        - txnRef
+        - amount
+        - category
+        - hour
+        - distance
+        - frequency
+        - deviceType
+        - country
+        - isFirstTransaction
+        - score
+        - status
+        - velocityRisk
+        - geographicRisk
+        - behavioralRisk
+        - deviceRisk
+        - amlStatus
+        - complianceTier
+        - createdAt
+      properties:
+        id:
+          type: integer
+        txnRef:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        hour:
+          type: integer
+        distance:
+          type: number
+        frequency:
+          type: integer
+        deviceType:
+          type: string
+        country:
+          type: string
+        isFirstTransaction:
+          type: boolean
+        score:
+          type: integer
+        status:
+          type: string
+        velocityRisk:
+          type: integer
+        geographicRisk:
+          type: integer
+        behavioralRisk:
+          type: integer
+        deviceRisk:
+          type: integer
+        amlStatus:
+          type: string
+        complianceTier:
+          type: string
+        createdAt:
+          type: string
+
+    TransactionInput:
+      type: object
+      required:
+        - txnRef
+        - amount
+        - category
+        - hour
+        - distance
+        - frequency
+        - deviceType
+        - country
+        - isFirstTransaction
+        - score
+        - status
+        - velocityRisk
+        - geographicRisk
+        - behavioralRisk
+        - deviceRisk
+        - amlStatus
+        - complianceTier
+      properties:
+        txnRef:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        hour:
+          type: integer
+        distance:
+          type: number
+        frequency:
+          type: integer
+        deviceType:
+          type: string
+        country:
+          type: string
+        isFirstTransaction:
+          type: boolean
+        score:
+          type: integer
+        status:
+          type: string
+        velocityRisk:
+          type: integer
+        geographicRisk:
+          type: integer
+        behavioralRisk:
+          type: integer
+        deviceRisk:
+          type: integer
+        amlStatus:
+          type: string
+        complianceTier:
+          type: string
+
+    TransactionListResponse:
+      type: object
+      required:
+        - transactions
+        - total
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/FraudTransaction"
+        total:
+          type: integer
+
+    TransactionStats:
+      type: object
+      required:
+        - totalAnalyzed
+        - totalBlocked
+        - totalReview
+        - totalApproved
+        - avgScore
+        - totalAmountProtected
+        - fraudByCategory
+        - hourlyTrend
+      properties:
+        totalAnalyzed:
+          type: integer
+        totalBlocked:
+          type: integer
+        totalReview:
+          type: integer
+        totalApproved:
+          type: integer
+        avgScore:
+          type: number
+        totalAmountProtected:
+          type: number
+        fraudByCategory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryStat"
+        hourlyTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/HourlyTrendPoint"
+
+    CategoryStat:
+      type: object
+      required:
+        - category
+        - count
+        - avgScore
+      properties:
+        category:
+          type: string
+        count:
+          type: integer
+        avgScore:
+          type: number
+
+    HourlyTrendPoint:
+      type: object
+      required:
+        - hour
+        - count
+      properties:
+        hour:
+          type: string
+        count:
+          type: integer
+
+    DeleteResult:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
