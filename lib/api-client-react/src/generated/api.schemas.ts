@@ -82,6 +82,16 @@ export interface DeleteResult {
   success: boolean;
 }
 
+export interface BulkTransactionInput {
+  transactions: TransactionInput[];
+}
+
+export interface BulkCreateResult {
+  saved: number;
+  failed: number;
+  total: number;
+}
+
 export interface ErrorResponse {
   error: string;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TransactionInputPanel, ScoreResultPanel, LiveFeedPanel, AnalyticsDashboard, RiskFactorPanel, HighRiskAlertModal, TransactionHistory } from '@/components/dashboard';
+import { TransactionInputPanel, ScoreResultPanel, LiveFeedPanel, AnalyticsDashboard, RiskFactorPanel, HighRiskAlertModal, TransactionHistory, BulkUploadPanel } from '@/components/dashboard';
 import { Transaction, TransactionInput } from '@/components/dashboard/types';
 import { useCreateTransaction, getListTransactionsQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -162,6 +162,18 @@ export default function Dashboard() {
         {/* Analytics dashboard */}
         <div className="mt-6">
           <AnalyticsDashboard />
+        </div>
+
+        {/* Batch Upload */}
+        <div className="mt-6">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="h-px flex-1 bg-gradient-to-r from-[#C46A1A]/30 to-transparent" />
+            <span className="text-xs font-mono text-[#A08060] uppercase tracking-widest px-2">
+              Batch Analysis
+            </span>
+            <div className="h-px flex-1 bg-gradient-to-l from-[#C46A1A]/30 to-transparent" />
+          </div>
+          <BulkUploadPanel />
         </div>
 
         {/* Compliance Audit Trail */}

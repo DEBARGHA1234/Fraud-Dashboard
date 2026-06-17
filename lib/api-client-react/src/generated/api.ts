@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  BulkCreateResult,
+  BulkTransactionInput,
   DeleteResult,
   ErrorResponse,
   FraudTransaction,
@@ -274,6 +276,77 @@ export const useCreateTransaction = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getCreateTransactionMutationOptions(options));
+    }
+
+export const getBulkCreateTransactionsUrl = () => {
+
+
+
+
+  return `/api/transactions/bulk`
+}
+
+/**
+ * @summary Save multiple analyzed transactions at once
+ */
+export const bulkCreateTransactions = async (bulkTransactionInput: BulkTransactionInput, options?: RequestInit): Promise<BulkCreateResult> => {
+
+  return customFetch<BulkCreateResult>(getBulkCreateTransactionsUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      bulkTransactionInput,)
+  }
+);}
+
+
+
+
+export const getBulkCreateTransactionsMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkCreateTransactions>>, TError,{data: BodyType<BulkTransactionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkCreateTransactions>>, TError,{data: BodyType<BulkTransactionInput>}, TContext> => {
+
+const mutationKey = ['bulkCreateTransactions'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkCreateTransactions>>, {data: BodyType<BulkTransactionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkCreateTransactions(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkCreateTransactionsMutationResult = NonNullable<Awaited<ReturnType<typeof bulkCreateTransactions>>>
+    export type BulkCreateTransactionsMutationBody = BodyType<BulkTransactionInput>
+    export type BulkCreateTransactionsMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Save multiple analyzed transactions at once
+ */
+export const useBulkCreateTransactions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkCreateTransactions>>, TError,{data: BodyType<BulkTransactionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof bulkCreateTransactions>>,
+        TError,
+        {data: BodyType<BulkTransactionInput>},
+        TContext
+      > => {
+      return useMutation(getBulkCreateTransactionsMutationOptions(options));
     }
 
 export const getDeleteTransactionUrl = (id: number,) => {

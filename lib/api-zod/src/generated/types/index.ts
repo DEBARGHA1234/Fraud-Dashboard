@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './bulkCreateResult';
+export * from './bulkTransactionInput';
 export * from './categoryStat';
 export * from './deleteResult';
 export * from './errorResponse';

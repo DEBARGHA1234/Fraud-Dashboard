@@ -156,6 +156,62 @@ router.post("/transactions", async (req, res) => {
   }
 });
 
+router.post("/transactions/bulk", async (req, res) => {
+  try {
+    const { transactions } = req.body as { transactions: Array<{
+      txnRef: string; amount: number; category: string; hour: number;
+      distance: number; frequency: number; deviceType: string; country: string;
+      isFirstTransaction: boolean; score: number; status: string;
+      velocityRisk: number; geographicRisk: number; behavioralRisk: number;
+      deviceRisk: number; amlStatus: string; complianceTier: string;
+    }> };
+
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      return res.status(400).json({ error: "transactions array is required" });
+    }
+
+    let saved = 0;
+    let failed = 0;
+
+    // Insert in chunks of 100
+    const CHUNK = 100;
+    for (let i = 0; i < transactions.length; i += CHUNK) {
+      const chunk = transactions.slice(i, i + CHUNK);
+      try {
+        await db.insert(fraudTransactionsTable).values(
+          chunk.map(t => ({
+            txnRef: t.txnRef,
+            amount: t.amount,
+            category: t.category,
+            hour: t.hour,
+            distance: t.distance,
+            frequency: t.frequency,
+            deviceType: t.deviceType,
+            country: t.country,
+            isFirstTransaction: t.isFirstTransaction,
+            score: t.score,
+            status: t.status as "APPROVED" | "REVIEW" | "BLOCKED",
+            velocityRisk: t.velocityRisk,
+            geographicRisk: t.geographicRisk,
+            behavioralRisk: t.behavioralRisk,
+            deviceRisk: t.deviceRisk,
+            amlStatus: t.amlStatus as "PASSED" | "FLAGGED",
+            complianceTier: t.complianceTier,
+          }))
+        );
+        saved += chunk.length;
+      } catch {
+        failed += chunk.length;
+      }
+    }
+
+    res.status(201).json({ saved, failed, total: transactions.length });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Bulk insert failed" });
+  }
+});
+
 router.delete("/transactions/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);

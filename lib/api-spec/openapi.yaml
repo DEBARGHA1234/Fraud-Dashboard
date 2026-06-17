@@ -100,6 +100,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /transactions/bulk:
+    post:
+      operationId: bulkCreateTransactions
+      tags: [transactions]
+      summary: Save multiple analyzed transactions at once
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkTransactionInput"
+      responses:
+        "201":
+          description: Transactions saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkCreateResult"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /transactions/{id}:
     delete:
       operationId: deleteTransaction
@@ -344,6 +369,30 @@ components:
       properties:
         success:
           type: boolean
+
+    BulkTransactionInput:
+      type: object
+      required:
+        - transactions
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransactionInput"
+
+    BulkCreateResult:
+      type: object
+      required:
+        - saved
+        - failed
+        - total
+      properties:
+        saved:
+          type: integer
+        failed:
+          type: integer
+        total:
+          type: integer
 
     ErrorResponse:
       type: object

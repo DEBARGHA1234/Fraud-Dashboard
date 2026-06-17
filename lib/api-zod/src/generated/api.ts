@@ -82,6 +82,32 @@ export const CreateTransactionBody = zod.object({
 
 
 /**
+ * @summary Save multiple analyzed transactions at once
+ */
+export const BulkCreateTransactionsBody = zod.object({
+  "transactions": zod.array(zod.object({
+  "txnRef": zod.string(),
+  "amount": zod.number(),
+  "category": zod.string(),
+  "hour": zod.number(),
+  "distance": zod.number(),
+  "frequency": zod.number(),
+  "deviceType": zod.string(),
+  "country": zod.string(),
+  "isFirstTransaction": zod.boolean(),
+  "score": zod.number(),
+  "status": zod.string(),
+  "velocityRisk": zod.number(),
+  "geographicRisk": zod.number(),
+  "behavioralRisk": zod.number(),
+  "deviceRisk": zod.number(),
+  "amlStatus": zod.string(),
+  "complianceTier": zod.string()
+}))
+})
+
+
+/**
  * @summary Delete a transaction record
  */
 export const DeleteTransactionParams = zod.object({
