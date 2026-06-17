@@ -1,0 +1,220 @@
+Build a Real-Time Fraud Detection Dashboard web app with the following 
+design and technical specifications:
+
+---
+
+🎨 DESIGN SYSTEM
+
+Color Palette (inspired by provided fintech UI):
+- Background: #0D0705 (near black with warm undertone)
+- Surface cards: #1A1008 to #2A1A0E (dark brown-black gradient)
+- Primary accent: #C46A1A (burnt orange / amber)
+- Secondary accent: #8B4A0F (deep copper)
+- Highlight glow: #FF8C3A (bright orange for alerts and active states)
+- Success: #4CAF7D (muted green)
+- Danger: #E53E3E (red for fraud alerts)
+- Text primary: #F5E6D3 (warm white)
+- Text secondary: #A08060 (muted warm tan)
+- Card border: rgba(196, 106, 26, 0.15)
+
+Typography:
+- Headings: 'Playfair Display' or 'Georgia' serif (JP Morgan / Morgan Stanley 
+  institutional feel)
+- Body/numbers: 'Inter' or 'DM Sans' (clean modern fintech)
+- Monospace for transaction IDs: 'JetBrains Mono'
+
+Morgan Stanley Subtle Customizations:
+- Add a very subtle "MS" watermark in bottom-right corner of the app 
+  (opacity 0.04, large serif font, non-intrusive)
+- Header should read: "J.P. Morgan | Fraud Intelligence Platform"
+  with a small blue-grey Morgan Stanley-inspired accent line underneath
+- Use institutional language: "Risk Score", "Threat Vector", 
+  "Compliance Status", "AML Flag" instead of generic terms
+- Add a subtle navy blue (#003366) gradient touch on the top header bar 
+  blended into the dark brown theme
+- Footer: "Powered by JPMorgan MLCoE | Compliance-Ready | SOC 2 Certified"
+
+---
+
+📐 LAYOUT & PAGES
+
+Single-page app with smooth section transitions. Sections:
+
+1. HEADER / HERO
+- Logo area: "⬡ FraudIQ" in amber with tagline 
+  "Real-Time Threat Detection by J.P. Morgan MLCoE"
+- Live status pill: animated green pulse dot + "System Online — 
+  Monitoring 2.4M transactions/sec"
+- Top-right: "Risk Level: LOW / MEDIUM / HIGH" badge that updates dynamically
+
+2. TRANSACTION INPUT PANEL (Left side or top card)
+A sleek dark card with form fields:
+- Transaction Amount ($)
+- Merchant Category (dropdown: Retail, Travel, Online, ATM, 
+  Wire Transfer, Crypto)
+- Time of Day (slider: 0-23 hours with labels)
+- Distance from Home (km, slider)
+- Transaction Frequency Today (number)
+- Device Type (Mobile / Desktop / POS Terminal / ATM)
+- Country (dropdown with flags emoji)
+- Is First Transaction with Merchant? (toggle)
+- Analyze Transaction button — amber gradient, full width, 
+  with subtle shimmer animation on hover
+
+3. FRAUD SCORE RESULT PANEL (Center / hero card)
+After analysis:
+- Giant animated circular gauge (0-100 risk score) 
+  that fills with color:
+  0-30: green, 31-60: amber, 61-85: orange, 86-100: red
+- Gauge animates from 0 to final score with easing
+- Below gauge: APPROVED / REVIEW / BLOCKED badge with icon
+- Risk breakdown bars:
+  - Velocity Risk
+  - Geographic Risk  
+  - Behavioral Risk
+  - Device Risk
+  Each bar animates left to right on result
+
+4. LIVE TRANSACTION FEED (Right panel or below)
+- Scrolling list of last 20 simulated transactions
+- Each row: Transaction ID (mono font) | Amount | Merchant | 
+  Risk Score pill (colored) | Status
+- New transactions slide in from top with animation
+- Rows glow red briefly if fraud detected
+- Auto-generates a new transaction every 3 seconds
+
+5. ANALYTICS DASHBOARD (Bottom section)
+Three cards side by side:
+
+Card A — Fraud Trend Chart:
+- Bar chart (like the Pinterest image) showing fraud attempts 
+  per hour (last 12 hours)
+- Dark bars with amber highlight on the tallest bar
+- Animated on load
+
+Card B — Risk Distribution:
+- Donut chart: Low / Medium / High / Blocked transactions
+- Warm color scheme matching the palette
+- Center shows total transactions analyzed
+
+Card C — Threat Map / Stats Grid:
+- Top merchant categories by fraud rate
+- Average risk score today
+- False positive rate
+- Total amount protected ($)
+- All numbers count up with animation on load
+
+6. EXPLAINABILITY PANEL (Collapsible)
+- "Why this score?" section
+- SHAP-style horizontal bar chart showing which features 
+  contributed most to the fraud score
+- Styled as "Risk Factor Analysis" with institutional language
+- Factors: Amount Anomaly, Time Pattern, Location Deviation, 
+  Velocity Spike, Device Mismatch
+
+---
+
+⚙️ TECHNICAL IMPLEMENTATION
+
+Frontend: Pure HTML + CSS + Vanilla JavaScript (single file, 
+no frameworks, runs on Replit instantly)
+
+Fraud Scoring Logic (JavaScript, no backend needed):
+Implement a weighted rule-based scoring engine:
+
+function calculateFraudScore(transaction) {
+  let score = 0;
+  
+  // Amount risk (0-25 pts)
+  if (amount > 5000) score += 25;
+  else if (amount > 1000) score += 15;
+  else if (amount > 500) score += 8;
+  
+  // Time risk (0-15 pts) — late night = higher risk
+  if (hour >= 1 && hour <= 5) score += 15;
+  else if (hour >= 22 || hour <= 0) score += 8;
+  
+  // Distance risk (0-20 pts)
+  if (distance > 500) score += 20;
+  else if (distance > 100) score += 10;
+  
+  // Frequency risk (0-20 pts)
+  if (frequency > 10) score += 20;
+  else if (frequency > 5) score += 12;
+  
+  // Category risk (0-10 pts)
+  highRiskCategories = ['Crypto', 'Wire Transfer', 'ATM'];
+  if (highRiskCategories.includes(category)) score += 10;
+  
+  // First transaction with merchant (0-10 pts)
+  if (isFirstTransaction) score += 10;
+  
+  return Math.min(score, 100);
+}
+
+Charts: Use Chart.js (CDN) for bar and donut charts
+
+Animations:
+- CSS keyframe animations for the gauge fill
+- Counter animations for all numbers (count up from 0)
+- Slide-in animations for transaction feed rows
+- Pulse animation for live status dot
+- Shimmer effect on the Analyze button
+- Smooth color transitions on risk score changes
+- Card hover: subtle amber glow (box-shadow: 0 0 20px rgba(196,106,26,0.3))
+
+---
+
+🎞️ SPECIFIC ANIMATIONS TO IMPLEMENT
+
+1. Gauge Animation:
+   - SVG circular progress bar
+   - Animates from 0 to score value in 1.5s with cubic-bezier easing
+   - Color transitions smoothly as value increases
+
+2. Transaction Feed:
+   - New rows use: transform: translateY(-20px); opacity: 0 → 
+     translateY(0); opacity: 1 over 400ms
+   - Fraud rows flash: background pulses red 2x then settles to 
+     dark red tint
+
+3. Score Bars (Risk breakdown):
+   - Width animates from 0% to final % over 800ms with staggered 
+     delay (each bar 100ms after previous)
+
+4. Number counters:
+   - All stat numbers count up from 0 to final value over 1.2s
+
+5. Page load:
+   - Cards fade in sequentially from top to bottom, 150ms stagger
+
+6. Button hover:
+   - Shimmer: pseudo-element with linear-gradient slides across 
+     button left to right on hover
+
+---
+
+🏛️ MORGAN STANLEY / JP MORGAN INSTITUTIONAL TOUCHES
+
+- Use "Transaction Reference: TXN-" + random alphanumeric IDs
+- "AML Screening: PASSED / FLAGGED" label on each result
+- "Compliance Officer Alert" modal that appears for score > 85:
+  A dark overlay modal with red border glow showing:
+  "⚠ HIGH RISK ALERT — Escalated to Compliance Desk"
+  with transaction details and a "Log Incident" button
+- Risk categories labeled as: STANDARD / ENHANCED DUE DILIGENCE / 
+  SUSPICIOUS ACTIVITY REPORT (SAR)
+- Show a subtle "Basel III Compliant" and "FATF Guidelines" 
+  badge in the footer
+
+---
+
+📱 RESPONSIVE:
+- Desktop: 3-column layout (Input | Score | Feed)
+- Tablet: 2-column
+- Mobile: Single column stack
+
+Make the entire app feel like a premium institutional fintech 
+tool — dark, warm, sophisticated, with amber/copper accents — 
+NOT a generic dashboard. Every element should feel like it 
+belongs in a JP Morgan trading floor.
